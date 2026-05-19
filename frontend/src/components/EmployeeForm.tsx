@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useState, type SyntheticEvent } from "react";
 import { ApiError } from "@/lib/api";
 import type { EmployeeInput } from "@/lib/types";
 
@@ -31,7 +31,7 @@ export function EmployeeForm({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  async function submit(e: FormEvent<HTMLFormElement>) {
+  async function submit(e: SyntheticEvent) {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
