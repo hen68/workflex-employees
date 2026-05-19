@@ -1,24 +1,36 @@
 import { Router } from "express";
+import { env } from "../env";
+import { HttpError } from "../error-handler";
+import {
+  createEmployeeSchema,
+  updateEmployeeSchema,
+  listQuerySchema,
+} from "./employee.schema";
 import {
   listEmployees,
   getEmployee,
   createEmployee,
   updateEmployee,
   deleteEmployee,
-  type EmployeeData,
+  summarizeProject,
 } from "./employee.service";
 
 export const employeeRouter = Router();
 
 employeeRouter.get("/", async (req, res) => {
-  const project = typeof req.query.project === "string" ? req.query.project : undefined;
-  const status =
-    req.query.status === "ACTIVE" || req.query.status === "INACTIVE" ? req.query.status : undefined;
-  res.json(await listEmployees({ project, status }));
+  const query = listQuerySchema.parse(req.query);
+  res.json(await listEmployees(query));
+});
+
+employeeRouter.get("/summary", async (req, res) => {
+  const project = String(req.query.project ?? "").trim();
+  if (!project) throw new HttpError(400, "Query parameter 'project' is required");
+  res.json(await summarizeProject(project, env.STANDARD_MONTHLY_HOURS));
 });
 
 employeeRouter.post("/", async (req, res) => {
-  res.status(201).json(await createEmployee(req.body as EmployeeData));
+  const body = createEmployeeSchema.parse(req.body);
+  res.status(201).json(await createEmployee(body));
 });
 
 employeeRouter.get("/:id", async (req, res) => {
@@ -26,7 +38,8 @@ employeeRouter.get("/:id", async (req, res) => {
 });
 
 employeeRouter.put("/:id", async (req, res) => {
-  res.json(await updateEmployee(req.params.id, req.body as EmployeeData));
+  const body = updateEmployeeSchema.parse(req.body);
+  res.json(await updateEmployee(req.params.id, body));
 });
 
 employeeRouter.delete("/:id", async (req, res) => {
