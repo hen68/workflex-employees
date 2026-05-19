@@ -31,7 +31,7 @@ export function EmployeeForm({
     setForm((f) => ({ ...f, [k]: v }));
   }
 
-  async function submit(e: FormEvent) {
+  async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setFieldErrors({});
