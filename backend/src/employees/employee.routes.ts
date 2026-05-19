@@ -1,32 +1,45 @@
 import { Router } from "express";
+import { env } from "../env";
+import { HttpError } from "../error-handler";
+import { validateBody, validateQuery } from "../validate";
+import {
+  createEmployeeSchema,
+  updateEmployeeSchema,
+  listQuerySchema,
+  type CreateEmployeeInput,
+  type UpdateEmployeeInput,
+} from "./employee.schema";
 import {
   listEmployees,
   getEmployee,
   createEmployee,
   updateEmployee,
   deleteEmployee,
-  type EmployeeData,
+  summarizeProject,
 } from "./employee.service";
 
 export const employeeRouter = Router();
 
-employeeRouter.get("/", async (req, res) => {
-  const project = typeof req.query.project === "string" ? req.query.project : undefined;
-  const status =
-    req.query.status === "ACTIVE" || req.query.status === "INACTIVE" ? req.query.status : undefined;
-  res.json(await listEmployees({ project, status }));
+employeeRouter.get("/", validateQuery(listQuerySchema), async (_req, res) => {
+  res.json(await listEmployees(res.locals.query));
 });
 
-employeeRouter.post("/", async (req, res) => {
-  res.status(201).json(await createEmployee(req.body as EmployeeData));
+employeeRouter.get("/summary", async (req, res) => {
+  const project = String(req.query.project ?? "").trim();
+  if (!project) throw new HttpError(400, "Query parameter 'project' is required");
+  res.json(await summarizeProject(project, env.STANDARD_MONTHLY_HOURS));
+});
+
+employeeRouter.post("/", validateBody(createEmployeeSchema), async (_req, res) => {
+  res.status(201).json(await createEmployee(res.locals.body as CreateEmployeeInput));
 });
 
 employeeRouter.get("/:id", async (req, res) => {
   res.json(await getEmployee(req.params.id));
 });
 
-employeeRouter.put("/:id", async (req, res) => {
-  res.json(await updateEmployee(req.params.id, req.body as EmployeeData));
+employeeRouter.put("/:id", validateBody(updateEmployeeSchema), async (req, res) => {
+  res.json(await updateEmployee(String(req.params.id), res.locals.body as UpdateEmployeeInput));
 });
 
 employeeRouter.delete("/:id", async (req, res) => {

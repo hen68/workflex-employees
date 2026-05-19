@@ -75,3 +75,25 @@ export async function updateEmployee(id: string, input: EmployeeData) {
 export async function deleteEmployee(id: string) {
   await prisma.employee.delete({ where: { id } });
 }
+
+export function calculateProjectCost(
+  employees: { hourlyRate: Prisma.Decimal; status: "ACTIVE" | "INACTIVE" }[],
+  standardMonthlyHours: number,
+): string {
+  // Filters ACTIVE internally so the function is independently unit-testable
+  // (spec §8 asserts "INACTIVE excluded" against this function directly).
+  const total = employees
+    .filter((e) => e.status === "ACTIVE")
+    .reduce((sum, e) => sum.add(e.hourlyRate.mul(standardMonthlyHours)), new Prisma.Decimal(0));
+  return total.toFixed(2);
+}
+
+export async function summarizeProject(project: string, standardMonthlyHours: number) {
+  const rows = await prisma.employee.findMany({ where: { project } });
+  return {
+    project,
+    employeeCount: rows.filter((e) => e.status === "ACTIVE").length,
+    standardMonthlyHours,
+    totalCost: calculateProjectCost(rows, standardMonthlyHours),
+  };
+}
