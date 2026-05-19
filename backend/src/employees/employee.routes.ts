@@ -1,13 +1,10 @@
 import { Router } from "express";
 import { env } from "../env";
 import { HttpError } from "../error-handler";
-import { validateBody, validateQuery } from "../validate";
 import {
   createEmployeeSchema,
   updateEmployeeSchema,
   listQuerySchema,
-  type CreateEmployeeInput,
-  type UpdateEmployeeInput,
 } from "./employee.schema";
 import {
   listEmployees,
@@ -20,8 +17,9 @@ import {
 
 export const employeeRouter = Router();
 
-employeeRouter.get("/", validateQuery(listQuerySchema), async (_req, res) => {
-  res.json(await listEmployees(res.locals.query));
+employeeRouter.get("/", async (req, res) => {
+  const query = listQuerySchema.parse(req.query);
+  res.json(await listEmployees(query));
 });
 
 employeeRouter.get("/summary", async (req, res) => {
@@ -30,16 +28,18 @@ employeeRouter.get("/summary", async (req, res) => {
   res.json(await summarizeProject(project, env.STANDARD_MONTHLY_HOURS));
 });
 
-employeeRouter.post("/", validateBody(createEmployeeSchema), async (_req, res) => {
-  res.status(201).json(await createEmployee(res.locals.body as CreateEmployeeInput));
+employeeRouter.post("/", async (req, res) => {
+  const body = createEmployeeSchema.parse(req.body);
+  res.status(201).json(await createEmployee(body));
 });
 
 employeeRouter.get("/:id", async (req, res) => {
   res.json(await getEmployee(req.params.id));
 });
 
-employeeRouter.put("/:id", validateBody(updateEmployeeSchema), async (req, res) => {
-  res.json(await updateEmployee(String(req.params.id), res.locals.body as UpdateEmployeeInput));
+employeeRouter.put("/:id", async (req, res) => {
+  const body = updateEmployeeSchema.parse(req.body);
+  res.json(await updateEmployee(req.params.id, body));
 });
 
 employeeRouter.delete("/:id", async (req, res) => {
