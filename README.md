@@ -49,7 +49,7 @@ Base path `/api`. JSON throughout, with a consistent error envelope: `{ "error":
 
 **Scope kept deliberately small.** `project` is a plain string (no Project entity / project CRUD — not asked, YAGNI). The backend has no controller/repository/DI ceremony for a single entity: `route → zod → service → Prisma`, with one central error handler. Prisma migrations are committed so `migrate deploy` reproduces the schema on a clean clone.
 
-**Frontend is a client-only React shell.** Next.js App Router is used purely as the React framework + router + dev server; all components are Client Components and the Express API owns data — this avoids running two server layers for a mini app. The data layer is one typed `fetch` wrapper + one `useEmployees` hook (no data-fetching library). Filtering is **apply-on-blur/submit** (not per-keystroke) and uses **keep-previous-data + request cancellation**: the list never blanks or flickers on a filter change, and the latest filter always wins. Backend validation errors render inline via `aria-describedby`; markup is semantic and accessible. Styling is a light, modern pass kept intentionally lean (the brief de-scopes polished styling).
+**Frontend is a client-only React shell.** Next.js App Router is used purely as the React framework + router + dev server; all components are Client Components and the Express API owns data — this avoids running two server layers for a mini app. The data layer is one typed `fetch` wrapper + one `useEmployees` hook (no data-fetching library). Project filtering is **apply-on-blur/submit** (not per-keystroke); status applies immediately on select-change. Both use **keep-previous-data + request cancellation**, so the list never blanks or flickers on a filter change and the latest filter always wins. Backend validation errors render inline via `aria-describedby`; markup is semantic and accessible. Styling is a light, modern pass kept intentionally lean (the brief de-scopes polished styling).
 
 ## Testing
 
@@ -60,7 +60,9 @@ Vitest unit tests cover the pure core — `calculateProjectCost` (empty project,
 - Authentication & authorization.
 - A normalized `Project` entity + project CRUD.
 - Per-employee logged hours / timesheets (the realistic replacement for the fixed-hours assumption).
+- A fuller test pyramid beyond the current unit tests: integration (API + a test database), E2E (Playwright), plus performance and regression suites.
+- A complete CI/CD pipeline: per-PR verification with required green checks, and automatic deployment once all tests pass.
+- Deeper UI/UX work to match current product standards: a design system, richer loading/empty/error states, optimistic updates, and an accessibility audit.
 - Pagination & sorting; debounced live search as an alternative filter UX.
 - A shared zod/types package to remove the frontend↔backend type mirroring.
-- OpenAPI/Swagger; Playwright E2E.
-- Structured logging + graceful shutdown; optimistic UI / a data-fetching library.
+- OpenAPI/Swagger; structured logging + graceful shutdown.
