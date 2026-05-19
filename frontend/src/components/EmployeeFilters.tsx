@@ -12,7 +12,8 @@ export function EmployeeFilters({
   const [project, setProject] = useState(value.project ?? "");
 
   function applyProject() {
-    onChange({ ...value, project: project.trim() || undefined });
+    const next = project.trim() || undefined;
+    if (next !== value.project) onChange({ ...value, project: next });
   }
 
   return (
