@@ -27,12 +27,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  list: (f: EmployeeFiltersValue) => {
+  list: (f: EmployeeFiltersValue, signal?: AbortSignal) => {
     const q = new URLSearchParams();
     if (f.project) q.set("project", f.project);
     if (f.status) q.set("status", f.status);
     const qs = q.toString();
-    return request<Employee[]>(`/employees${qs ? `?${qs}` : ""}`);
+    return request<Employee[]>(`/employees${qs ? `?${qs}` : ""}`, { signal });
   },
   get: (id: string) => request<Employee>(`/employees/${id}`),
   create: (body: EmployeeInput) =>

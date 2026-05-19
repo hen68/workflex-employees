@@ -30,7 +30,7 @@ export default function HomePage() {
       {loading && <p>Loading…</p>}
       {error && <p className="error">{error}</p>}
       {deleteError && <p className="error">{deleteError}</p>}
-      {!loading && !error && <EmployeeTable employees={employees} onDelete={onDelete} />}
+      {!loading && <EmployeeTable employees={employees} onDelete={onDelete} />}
       <ProjectCostPanel />
     </>
   );
