@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import type { Employee } from "@prisma/client";
 import { prisma } from "../prisma";
 import { HttpError } from "../error-handler";
 
@@ -14,7 +15,7 @@ export type SerializedEmployee = {
   updatedAt: string;
 };
 
-type EmployeeRow = Prisma.EmployeeGetPayload<object>;
+type EmployeeRow = Employee;
 
 export function serializeEmployee(e: EmployeeRow): SerializedEmployee {
   return {
