@@ -1,0 +1,25 @@
+{
+  "name": "workflex-employees",
+  "private": true,
+  "packageManager": "pnpm@10.12.1",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c blue,magenta \"pnpm --filter backend dev\" \"pnpm --filter frontend dev\"",
+    "db:generate": "pnpm --filter backend exec prisma generate",
+    "db:migrate": "pnpm --filter backend exec prisma migrate deploy && pnpm --filter backend exec prisma generate",
+    "db:migrate:dev": "pnpm --filter backend exec prisma migrate dev",
+    "db:seed": "pnpm --filter backend exec tsx prisma/seed.ts",
+    "test": "pnpm --filter backend test",
+    "typecheck": "pnpm --filter backend exec tsc --noEmit && pnpm --filter frontend exec tsc --noEmit",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.15.0",
+    "concurrently": "^9.1.0",
+    "eslint": "^9.15.0",
+    "prettier": "^3.4.1",
+    "typescript-eslint": "^8.16.0"
+  }
+}

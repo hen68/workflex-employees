@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: workflex-postgres
+    environment:
+      POSTGRES_USER: workflex
+      POSTGRES_PASSWORD: workflex
+      POSTGRES_DB: workflex
+    ports:
+      - "5432:5432"
+    volumes:
+      - workflex-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U workflex -d workflex"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  workflex-pgdata:
